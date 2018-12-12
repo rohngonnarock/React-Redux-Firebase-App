@@ -22,11 +22,25 @@ exports.projectCreated = functions.firestore
 
     return createNotification(notification);
 
-});
+  });
+
+exports.projectDeleted = functions.firestore
+  .document('projects/{projectId}')
+  .onDelete(doc => {
+    const project = doc.data();
+    const notification = {
+      content: 'Project Deleted',
+      user: `${project.authorFirstName} ${project.authorLastName}`,
+      time: admin.firestore.FieldValue.serverTimestamp()
+    }
+
+    return createNotification(notification);
+
+  });
 
 exports.userJoined = functions.auth.user()
   .onCreate(user => {
-    
+
     return admin.firestore().collection('users')
       .doc(user.uid).get().then(doc => {
 
@@ -40,4 +54,4 @@ exports.userJoined = functions.auth.user()
         return createNotification(notification);
 
       });
-});
+  });
