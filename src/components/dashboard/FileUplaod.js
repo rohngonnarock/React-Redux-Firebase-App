@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import firebase from "firebase";
 import FileUploader from "react-firebase-file-uploader";
-
+import { connect } from 'react-redux'
+import { addFile } from '../../store/actions/uploadActions'
 class FileUpload extends Component {
   state = {
     username: "",
@@ -26,7 +27,10 @@ class FileUpload extends Component {
       .ref("images")
       .child(filename)
       .getDownloadURL()
-      .then(url => this.setState({ avatarURL: url }));
+      .then(url => {
+        this.setState({ avatarURL: url })
+        this.props.addFile({ avatarURL: url });
+      });
   };
 
   render() {
@@ -50,4 +54,17 @@ class FileUpload extends Component {
   }
 }
 
-export default FileUpload;
+const mapStateToProps = (state) => {
+  console.log(state.upload)
+  return {
+    auth: state.firebase.auth
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    addFile: (file) => dispatch(addFile(file))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FileUpload);
